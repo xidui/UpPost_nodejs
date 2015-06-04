@@ -1,7 +1,7 @@
 # UpPost_nodejs (一个顶贴工具)
 ### the first nodejs version, can do following works
 ##### 1.login to douban(豆瓣) and record the cookie
-##### 2.connect to LianZhong(联众打码) to get the value the captcha image
+##### 2.connect to LianZhong(联众打码) to get the value of the captcha image
 ##### 3.add comment to any post in douban
 
 ### future works
