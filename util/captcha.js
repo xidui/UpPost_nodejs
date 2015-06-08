@@ -2,7 +2,6 @@ var http = require('http');
 var fs = require('fs');
 var request = require('request');
 var util = require('util');
-var config = require('./config');
 
 sleep = function (milliSeconds) {
     var startTime = new Date().getTime();
@@ -25,7 +24,7 @@ var mkfield = function (field, value) {
     return util.format('Content-Disposition: form-data; name="%s"\r\n\r\n%s\r\n', field, value);
 }
 
-exports.getValue = function(imageId, callback){
+exports.getValue = function(imageId, config, callback){
     var content = '';
     var contentLength = 0;
     var options = {
@@ -53,7 +52,7 @@ exports.getValue = function(imageId, callback){
     content += '--' + boundry + '\r\n';
     content += mkfield('user_name', config.lianzhong_user);
     content += '--' + boundry + '\r\n';
-    content += mkfield('user_pw', config.lianzhong_password);
+    content += mkfield('user_pw', config.lianzhong_pw);
     content += '--' + boundry + '\r\n';
     content += mkfield('yzm_minlen', '0');
     content += '--' + boundry + '\r\n';

@@ -1,7 +1,6 @@
 var http = require('http');
 var qs = require('querystring');
 var request = require('request');
-var config = require('./config');
 
 var login_options = {
     hostname    :   'accounts.douban.com',
@@ -15,10 +14,10 @@ var login_options = {
     }
 };
 
-exports.login = function(callback){
+exports.login = function(config, callback){
     var postForm = {
-        form_email      :   config.douban_email,
-        form_password   :   config.douban_password,
+        form_email      :   config.douban_user,
+        form_password   :   config.douban_pw,
         remember        :   'on',
         source          :   'index_nav'
     };
@@ -35,12 +34,12 @@ exports.login = function(callback){
         res.on('data', function (chunk) {
             if ("Your browser should have redirected you to http://www.douban.com" == chunk){
                 //console.log('login successful');
-                global.ck = '';
+                global.ck[config.douban_user] = '';
                 res.headers['set-cookie'].forEach(function(c){
-                    global.ck += c;
-                    global.ck += ';';
+                    global.ck[config.douban_user] += c;
+                    global.ck[config.douban_user] += ';';
                 });
-                callback();
+                callback(config);
             }else{
                 console.log('login failed');
             }
@@ -53,10 +52,10 @@ exports.login = function(callback){
     req.end();
 }
 
-exports.loginWithCap = function(id, value, callback){
+exports.loginWithCap = function(id, value, config, callback){
     var postForm = {
-        form_email          :   config.douban_email,
-        form_password       :   config.douban_password,
+        form_email          :   config.douban_user,
+        form_password       :   config.douban_pw,
         redir               :   'http://www.douban.com/',
         remember            :   'on',
         source              :   'index_nav',
@@ -74,12 +73,12 @@ exports.loginWithCap = function(id, value, callback){
         res.on('data', function (chunk) {
             if ("Your browser should have redirected you to http://www.douban.com/" == chunk){
                 console.log('login douban successful!');
-                global.ck = '';
+                global.ck[config.douban_user] = '';
                 res.headers['set-cookie'].forEach(function(c){
-                    global.ck += c;
-                    global.ck += ';';
+                    global.ck[config.douban_user] += c;
+                    global.ck[config.douban_user] += ';';
                 });
-                callback();
+                callback(config);
             }else{
                 console.log('login failed');
             }

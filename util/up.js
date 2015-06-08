@@ -2,8 +2,6 @@ var http = require('http');
 var qs = require('querystring');
 var cap = require('./captcha');
 
-var URL = 'www.douban.com/group/topic/75835626/';
-
 var postForm = {
     rv_comment      :   '',
     ck              :   '5zHN',
@@ -20,9 +18,9 @@ var postFormCaptcha = {
     'captcha-id'        :   ''
 };
 
-var up_once = function(url, postForm){
-    var host = url.match(/[a-z|A-Z|0-9|.]*/)[0];
-    var path = url.match(/\/[a-z|A-Z|0-9|\/#!\?=&_]*/)[0];
+var up_once = function(config, postForm){
+    var host = (config.url + '/add_comment').match(/[a-z|A-Z|0-9|.]*/)[0];
+    var path = (config.url + '/add_comment').match(/\/[a-z|A-Z|0-9|\/#!\?=&_]*/)[0];
     var up_options = {
         hostname    :   host,
         port        :   80,
@@ -32,7 +30,7 @@ var up_once = function(url, postForm){
             'User-Agent'    :   'request',
             "Content-Type"  :   'application/x-www-form-urlencoded',
             "Content-Length":   0,
-            Cookie          :   global.ck
+            Cookie          :   global.ck[config.douban_user]
         }
     };
 
@@ -43,7 +41,7 @@ var up_once = function(url, postForm){
     // up
     var req = http.request(up_options, function(res) {
         console.log('UP STATUS: ' + res.statusCode);
-        console.log('HEADERS : ' + res.headers);
+        //console.log('HEADERS : ' + res.headers);
         res.setEncoding('utf8');
         res.on('data', function (chunk) {
             //console.log(chunk);
@@ -56,16 +54,16 @@ var up_once = function(url, postForm){
     req.end();
 }
 
-var up = function (content){
+var up = function (config){
     // first to see weather need input captcha
     var options = {
-        hostname    :   URL.match(/[a-z|0-9|A-Z|.]*/)[0],
+        hostname    :   config.url.match(/[a-z|0-9|A-Z|.]*/)[0],
         port        :   80,
-        path        :   URL.match(/\/[a-z|A-Z|0-9|\/]*/)[0],
+        path        :   config.url.match(/\/[a-z|A-Z|0-9|\/]*/)[0],
         method      :   'GET',
         headers     :   {
             'User-Agent'    :   'request',
-            Cookie          :   global.ck
+            Cookie          :   global.ck[config.douban_user]
         }
     };
     var req = http.request(options, function (res) {
@@ -90,18 +88,18 @@ var up = function (content){
                 cap.downloadCaptcha(imageUrl, imageId, function(){
                     cap.getValue(imageId, function(imageValue){
                         var form = postFormCaptcha;
-                        form['rv_comment'] = 'up_captcha : ' + content;
+                        form['rv_comment'] = 'up_captcha : ' + config.content;
                         form['captcha-solution'] = imageValue;
                         form['captcha-id'] = imageId;
                         //console.log(form);
-                        up_once('www.douban.com/group/topic/75835626/add_comment', form);
+                        up_once(config, form);
                     });
                 });
             } else {
                 // up without captcha
                 var form = postForm;
-                form.rv_comment = 'up_without : ' + content;
-                up_once('www.douban.com/group/topic/75835626/add_comment', form);
+                form.rv_comment = 'up_without : ' + config.content;
+                up_once(config, form);
             }
         });
     });
@@ -111,8 +109,7 @@ var up = function (content){
     req.end();
 }
 
-exports.afterLogin = function(){
-    for (var i = 0; i < 3; ++i){
-        up(i);
-    }
+exports.afterLogin = function(config){
+    console.log('afterlogin');
+    up(config);
 }
