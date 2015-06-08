@@ -25,7 +25,7 @@ exports.cklog = function(cookie, config, cb){
             if (null == chunk.match(/\/html/)) {
                 return;
             }
-            if (options.ck != '' && responseText.match(/id="captcha_image"/) == null){
+            if (cookie != '' && responseText.match(/id="captcha_image"/) == null){
                 console.log('Need not login');
                 cb(config);
                 return;
